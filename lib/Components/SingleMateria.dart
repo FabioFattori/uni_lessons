@@ -6,11 +6,11 @@ class SingleMateria extends StatelessWidget {
 
   final Lezione lezione;
 
-  String printMinutes() {
-    if (lezione.OrarioInizio.minute < 10) {
-      return "0${lezione.OrarioInizio.minute}";
+  String printMinutes(DateTime Orario) {
+    if (Orario.minute < 10) {
+      return "0${Orario.minute}";
     } else {
-      return "${lezione.OrarioInizio.minute}";
+      return "${Orario.minute}";
     }
   }
 
@@ -31,11 +31,15 @@ class SingleMateria extends StatelessWidget {
             style: const TextStyle(
                 fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
           ),
-          Text(
-            "${lezione.OrarioInizio.hour}:${printMinutes()}",
+          lezione.OrarioFine!=null?Text(
+            "${lezione.OrarioInizio.hour}:${printMinutes(lezione.OrarioInizio)} - ${lezione.OrarioFine!.hour}:${printMinutes(lezione.OrarioFine!)}",
             style: const TextStyle(
                 fontSize: 15, fontWeight: FontWeight.w300, color: Colors.white),
-          ),
+          ):Text(
+            "${lezione.OrarioInizio.hour}:${printMinutes(lezione.OrarioInizio)}",
+            style: const TextStyle(
+                fontSize: 15, fontWeight: FontWeight.w300, color: Colors.white),
+          ), 
         ],
       ),
     );

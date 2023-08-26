@@ -4,12 +4,15 @@ class HeaderBar extends StatefulWidget {
   HeaderBar({super.key, required this.OnDateChanged});
 
   late Function OnDateChanged;
+  
 
   @override
   State<HeaderBar> createState() => _HeaderBarState();
 }
 
 class _HeaderBarState extends State<HeaderBar> {
+
+  
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,7 +28,7 @@ class _HeaderBarState extends State<HeaderBar> {
                   lastDate: DateTime(2050),
                   builder: (BuildContext context, Widget? child) {
                     return Theme(
-                      data: ThemeData.dark(),
+                      data: ThemeData.dark(useMaterial3: true),
                       child: child!,
                     );
                   }));

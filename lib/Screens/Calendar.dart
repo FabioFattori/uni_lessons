@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:uni_lessons/Components/ChooseMessage.dart';
 import 'package:uni_lessons/Components/HeaderBar.dart';
+import 'package:uni_lessons/Components/NotificationApi.dart';
 import 'package:uni_lessons/Components/SingleDayDisplayer.dart';
 import '../Models/Lezione.dart';
 import 'package:excel/excel.dart';
@@ -83,8 +86,6 @@ class _CalendarState extends State<Calendar> {
       if (cella == null) continue;
 
       if (checkIfAStringIsADay(cella.value.node.text)) {
-        //converti in data la stringa composta in questo modo "LUNEDI 25 sett."
-
         widget.Giorni.add(convertToDateTime(cella.value.node.text));
       } else if (cella.value.node.text.contains("SETTIM.")) {
         widget.Giorni = [];
@@ -110,6 +111,28 @@ class _CalendarState extends State<Calendar> {
     }
   }
 
+  void mergeLezioni() {
+    List<Lezione> result = [];
+    for (var lezione in widget.ThingsToDo) {
+      Lezione NextPossibleLesson = Lezione(
+          lezione.Materia, lezione.OrarioInizio.add(const Duration(hours: 1)));
+
+      if (widget.ThingsToDo.contains(NextPossibleLesson)) {
+        int i = widget.ThingsToDo.indexOf(NextPossibleLesson);
+        setState(() {
+          lezione.OrarioFine = widget.ThingsToDo[i].OrarioInizio;
+        });
+        result.add(widget.ThingsToDo[i]);
+      }
+    }
+
+    setState(() {
+      for (var lezione in result) {
+        widget.ThingsToDo.remove(lezione);
+      }
+    });
+  }
+
   void readExcel() async {
     var file = await rootBundle.load("assets/foglio.xlsx");
     var bytes = file.buffer.asUint8List();
@@ -120,12 +143,25 @@ class _CalendarState extends State<Calendar> {
         CreateLezioniFromFile(row);
       }
     }
+
+    mergeLezioni();
+
+    String message = MyMessages.notificationMessage(getThingsToDoForSelectedDate(widget.selectedDate.add(const Duration(days:1))));
+    NotificationApi.showScheduledNotification(
+                            0,
+                            message,
+                            //start of the day
+                            //DateTime.parse(DateFormat("yyyy-MM-dd").format(DateTime.now().add(const Duration(days: 1)))));
+                            DateTime.now().add(const Duration(seconds: 10)));
   }
 
   @override
   void initState() {
     super.initState();
+
+    NotificationApi.init();
     readExcel();
+    
   }
 
   @override
@@ -134,9 +170,9 @@ class _CalendarState extends State<Calendar> {
         backgroundColor: const Color.fromARGB(255, 16, 16, 24),
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 16, 16, 24),
-          title: const Text(
-            "Benvenuta BiBi <3",
-            style: TextStyle(color: Colors.deepPurpleAccent),
+          title: Text(
+            MyMessages.getWelcomeMessage(),
+            style:const TextStyle(color: Colors.deepPurpleAccent),
           ),
         ),
         body: Column(
@@ -157,6 +193,7 @@ class _CalendarState extends State<Calendar> {
                 ]
               : [
                   HeaderBar(
+                    
                     OnDateChanged: (newDate) => {
                       setState(
                         () {
