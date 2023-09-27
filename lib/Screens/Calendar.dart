@@ -146,13 +146,18 @@ class _CalendarState extends State<Calendar> {
 
     mergeLezioni();
 
-    String message = MyMessages.notificationMessage(getThingsToDoForSelectedDate(widget.selectedDate.add(const Duration(days:1))));
+    String message = MyMessages.notificationMessage(
+        getThingsToDoForSelectedDate(
+            widget.selectedDate.add(const Duration(days: 1))));
     NotificationApi.showScheduledNotification(
-                            0,
-                            message,
-                            //start of the day
-                            //DateTime.parse(DateFormat("yyyy-MM-dd").format(DateTime.now().add(const Duration(days: 1)))));
-                            DateTime.now().add(const Duration(seconds: 10)));
+      0,
+      message,
+      //start of the day
+      DateTime(widget.selectedDate.year, widget.selectedDate.month,
+              widget.selectedDate.day, 0, 0, 0)
+          .add(const Duration(days: 1)),
+    );
+    //DateTime.now().add(const Duration(seconds: 10)));
   }
 
   @override
@@ -161,7 +166,6 @@ class _CalendarState extends State<Calendar> {
 
     NotificationApi.init();
     readExcel();
-    
   }
 
   @override
@@ -172,7 +176,7 @@ class _CalendarState extends State<Calendar> {
           backgroundColor: const Color.fromARGB(255, 16, 16, 24),
           title: Text(
             MyMessages.getWelcomeMessage(),
-            style:const TextStyle(color: Colors.deepPurpleAccent),
+            style: const TextStyle(color: Colors.deepPurpleAccent),
           ),
         ),
         body: Column(
@@ -193,7 +197,6 @@ class _CalendarState extends State<Calendar> {
                 ]
               : [
                   HeaderBar(
-                    
                     OnDateChanged: (newDate) => {
                       setState(
                         () {
