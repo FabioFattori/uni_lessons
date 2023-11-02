@@ -150,11 +150,11 @@ class _CalendarState extends State<Calendar> {
         getThingsToDoForSelectedDate(
             widget.selectedDate.add(const Duration(days: 1))));
     NotificationApi.showScheduledNotification(
-        0,
-        message,
-        //start of the day
-        //DateTime.parse(DateFormat("yyyy-MM-dd").format(DateTime.now().add(const Duration(days: 1)))));
-        DateTime.now().add(const Duration(seconds: 10)));
+                            0,
+                            message,
+                            //start of the day
+                            //DateTime.parse(DateFormat("yyyy-MM-dd").format(DateTime.now().add(const Duration(days: 1)))));
+                            DateTime.now().add(const Duration(seconds: 10)));
   }
 
   @override
