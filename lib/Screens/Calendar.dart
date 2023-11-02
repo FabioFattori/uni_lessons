@@ -94,15 +94,22 @@ class _CalendarState extends State<Calendar> {
       } else {
         for (var i = 1; i < row.length; i++) {
           if (row[i] == null) continue;
+
           var lezione = Lezione(
               row[i]!.value.node.text,
               DateTime.parse(widget.Giorni[counterDays].toString()).add(
                   Duration(
-                      hours: int.parse(
-                          cella.value.node.text.split('T')[1].split(":")[0]))));
+                      hours: int.parse(row[0]!
+                          .value
+                          .node
+                          .text
+                          .split('T')[1]
+                          .split(":")[0]))));
           counterDays++;
           setState(() {
-            widget.ThingsToDo.add(lezione);
+            if (!lezione.Materia.contains("niente")) {
+              widget.ThingsToDo.add(lezione);
+            }
           });
         }
 
@@ -114,6 +121,29 @@ class _CalendarState extends State<Calendar> {
   void mergeLezioni() {
     List<Lezione> result = [];
     for (var lezione in widget.ThingsToDo) {
+      //check for the same lesson in the same day
+
+      for (var lezione2 in widget.ThingsToDo) {
+        if (lezione.Materia == lezione2.Materia &&
+            lezione.OrarioInizio.year == lezione2.OrarioInizio.year &&
+            lezione.OrarioInizio.month == lezione2.OrarioInizio.month &&
+            lezione.OrarioInizio.day == lezione2.OrarioInizio.day &&
+            lezione.OrarioInizio.hour == lezione2.OrarioInizio.hour &&
+            lezione.OrarioInizio.minute == lezione2.OrarioInizio.minute &&
+            lezione.OrarioInizio.second == lezione2.OrarioInizio.second &&
+            lezione.OrarioInizio.millisecond ==
+                lezione2.OrarioInizio.millisecond &&
+            lezione.OrarioInizio.microsecond ==
+                lezione2.OrarioInizio.microsecond) {
+
+          result.add(lezione2);
+          setState(() {
+            lezione.OrarioFine = lezione2.OrarioFine;
+          });
+
+        }
+      }
+      /*
       Lezione NextPossibleLesson = Lezione(
           lezione.Materia, lezione.OrarioInizio.add(const Duration(hours: 1)));
 
@@ -124,6 +154,7 @@ class _CalendarState extends State<Calendar> {
         });
         result.add(widget.ThingsToDo[i]);
       }
+      */
     }
 
     setState(() {
@@ -140,21 +171,23 @@ class _CalendarState extends State<Calendar> {
 
     for (var table in excel.tables.keys) {
       for (var row in excel.tables[table]!.rows) {
-        CreateLezioniFromFile(row);
+        if (row[0] != null) {
+          CreateLezioniFromFile(row);
+        }
       }
     }
 
-    mergeLezioni();
+    //mergeLezioni();
 
     String message = MyMessages.notificationMessage(
         getThingsToDoForSelectedDate(
             widget.selectedDate.add(const Duration(days: 1))));
     NotificationApi.showScheduledNotification(
-                            0,
-                            message,
-                            //start of the day
-                            //DateTime.parse(DateFormat("yyyy-MM-dd").format(DateTime.now().add(const Duration(days: 1)))));
-                            DateTime.now().add(const Duration(seconds: 10)));
+        0,
+        message,
+        //start of the day
+        //DateTime.parse(DateFormat("yyyy-MM-dd").format(DateTime.now().add(const Duration(days: 1)))));
+        DateTime.now().add(const Duration(seconds: 10)));
   }
 
   @override
